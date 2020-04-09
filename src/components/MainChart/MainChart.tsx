@@ -7,6 +7,11 @@ interface IProps {
 }
 interface IState{
     chartData: object;
+    deathRateValue: number;
+    fertilityRateValue: number;
+    budgetValue: number;
+    badEcologyValue: number;
+    virusStammsValue: number;
 }
 
 var data = {
@@ -120,10 +125,17 @@ export default class MainChart extends React.Component<IProps, IState> {
 
     constructor(props : IProps){
         super(props);
-        this.state = {
-            chartData : data
-        };
+
         this.game = new Game();
+
+        this.state = {
+            chartData : data,
+            deathRateValue: this.game.deathRate,
+            fertilityRateValue: this.game.fertilityRate,
+            budgetValue: this.game.budget,
+            badEcologyValue: this.game.badEcology,
+            virusStammsValue: this.game.virusStamms,
+        };
 
         window.setInterval(this.tick.bind(this), 4000);
     }
@@ -162,22 +174,81 @@ export default class MainChart extends React.Component<IProps, IState> {
 
         this.time++;
     }
+
+    private increaseDeathRate(amount: number) {
+        this.game.deathRate += amount;
+        this.setState({
+            deathRateValue: this.game.deathRate
+        })
+    }
+
+    private increaseFertilityRate(amount: number) {
+        this.game.fertilityRate += amount;
+        this.setState({
+            fertilityRateValue: this.game.fertilityRate
+        })
+    }
+
+    private increaseBudget(amount: number) {
+        this.game.budget += amount;
+        this.setState({
+            budgetValue: this.game.budget
+        })
+    }
+
+    private increaseBadEcology(amount: number) {
+        this.game.badEcology += amount;
+        this.setState({
+            badEcologyValue: this.game.badEcology
+        })
+    }
+
+    private increaseVirusStamms(amount: number) {
+        this.game.virusStamms += amount;
+        this.setState({
+            virusStammsValue: this.game.virusStamms
+        })
+    }
+
     public render() {
         // use full screen
         return (
             <div>
                 <LineChart data={this.state.chartData} redraw width="1000" height="700"/>
                 <div id={"panel"} style={{float: 'right', margin: '30px', textAlign: 'end'}}>
-                    <span>Death rate </span>
-                    <button>-</button>
-                    <input type="text" value="1" style={{width: '50px'}}/>
-                    <button>+</button>
+                    <span>Уровень смертности </span>
+                    <button onClick={() => this.increaseDeathRate(-0.01)}>-</button>
+                    <input value={(this.state.deathRateValue * 100).toFixed().toString() + "%"}
+                           style={{width: '50px'}} type="text" />
+                    <button onClick={() => this.increaseDeathRate(0.01)}>+</button>
                     <br/>
 
-                    <span>Birth rate </span>
-                    <button>-</button>
-                    <input type="text" value="1" style={{width: '50px'}}/>
-                    <button>+</button>
+                    <span>Уровень рождаемости </span>
+                    <button onClick={() => this.increaseFertilityRate(-0.01)}>-</button>
+                    <input value={(this.state.fertilityRateValue * 100).toFixed().toString() + "%"}
+                           style={{width: '50px'}} type="text" />
+                    <button onClick={() => this.increaseFertilityRate(0.01)}>+</button>
+                    <br/>
+
+                    <span>Плохая экология </span>
+                    <button onClick={() => this.increaseBadEcology(-0.01)}>-</button>
+                    <input value={(this.state.badEcologyValue * 100).toFixed().toString() + "%"}
+                           style={{width: '50px'}} type="text" />
+                    <button onClick={() => this.increaseBadEcology(0.01)}>+</button>
+                    <br/>
+
+                    <span>Штаммы вирусов </span>
+                    <button onClick={() => this.increaseVirusStamms(-1)}>-</button>
+                    <input value={this.state.virusStammsValue.toString()}
+                           style={{width: '50px'}} type="text" />
+                    <button onClick={() => this.increaseVirusStamms(1)}>+</button>
+                    <br/>
+
+                    <span>Бюджет государства </span>
+                    <button onClick={() => this.increaseBudget(-1)}>-</button>
+                    <input value={this.state.budgetValue.toString()}
+                           style={{width: '50px'}} type="text" />
+                    <button onClick={() => this.increaseBudget(1)}>+</button>
                     <br/>
                 </div>
             </div>

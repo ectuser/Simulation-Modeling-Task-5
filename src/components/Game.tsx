@@ -68,13 +68,13 @@ export default class Game {
 
     public tick() {
         // TODO: add noise
-        this.populationSize = this.prevPopulationSize*(1 + this.fertility-this.prevFertility - (this.mortality-this.prevMortality));
-        this.illness = this.prevIllness*(1 + this.badEcology-this.prevBadEcology + (this.virusStamms-this.prevVirusStamms)/1000);
-        this.financing = this.prevFinancing*(1 + this.budget-this.prevBudget) + (this.illness-this.prevIllness)/10;
-        this.medicalEquipment = this.prevMedicalEquipment*(1 + this.financing-this.prevFinancing);
-        this.medicineQuality = this.prevMedicineQuality*(1 + (this.medicalEquipment-this.prevMedicalEquipment + this.doctorsNum-this.prevDoctorsNum)/100);
         this.fertility = this.prevFertility*(1 + this.fertilityRate-this.prevFertilityRate);
         this.mortality = this.prevMortality*(1 + this.illness-this.prevIllness + this.deathRate-this.prevDeathRate - 2*(this.medicineQuality-this.prevMedicineQuality));
+        this.populationSize = this.prevPopulationSize*(1 + this.fertility-this.prevFertility - (this.mortality-this.prevMortality));
+        this.illness = this.prevIllness*(1 + this.badEcology-this.prevBadEcology + (this.virusStamms-this.prevVirusStamms)/1000);
+        this.financing = this.prevFinancing*(1 + (this.budget-this.prevBudget)/100 + (this.illness-this.prevIllness)/10);
+        this.medicalEquipment = this.prevMedicalEquipment*(1 + this.financing-this.prevFinancing);
+        this.medicineQuality = this.prevMedicineQuality*(1 + (this.medicalEquipment-this.prevMedicalEquipment + this.doctorsNum-this.prevDoctorsNum)/100);
         // TODO: add delay
         this.doctorsNum = this.prevDoctorsNum*(1 + (this.populationSize-this.prevPopulationSize)/100);
         this.patientsNum = this.prevPatientsNum*(1 + this.illness-this.prevIllness + (this.populationSize-this.prevPopulationSize)/100 - 2*(this.medicineQuality-this.prevMedicineQuality));
