@@ -1,6 +1,6 @@
-function randomInteger(min, max) {
-  let rand = min + Math.random() * (max + 1 - min);
-  return Math.floor(rand);
+function randomInteger(min: number, max: number) {
+    let rand = min + Math.random() * (max + 1 - min);
+    return Math.floor(rand);
 }
 
 export default class Game {
@@ -18,6 +18,8 @@ export default class Game {
     public fertilityRate: number;
     public populationSize: number;
     public doctorsNum: number;
+
+    public doctorsDelay: number;
 
     // @ts-ignore
     private prevBadEcology: number;
@@ -57,48 +59,53 @@ export default class Game {
 
         this.illness = randomInteger(35, 55)/100;
         this.financing = randomInteger(10, 30)/100;
-        this.medicalEquipment = randomInteger(30, 50);
-        this.mortality = randomInteger(10, 14)/100;
-        this.fertility = randomInteger(10, 14)/100;
-        this.medicineQuality = randomInteger(20, 50)/100;
-        this.populationSize = randomInteger(80, 110);
+        this.medicalEquipment = randomInteger(20, 40);
+        this.mortality = randomInteger(10, 11)/100;
+        this.fertility = randomInteger(10, 11)/100;
+        this.medicineQuality = randomInteger(10, 50)/100;
+        this.populationSize = randomInteger(70, 100);
         this.doctorsNum = this.populationSize/randomInteger(10, 50);
         this.patientsNum = this.populationSize/randomInteger(10, 50);
 
         this.setPrev();
+
+        this.doctorsDelay = 0;
     }
 
     public tick() {
-        // TODO: add noise
         this.fertility = this.prevFertility*(1 + this.fertilityRate-this.prevFertilityRate);
         this.mortality = this.prevMortality*(1 + this.illness-this.prevIllness + this.deathRate-this.prevDeathRate - 2*(this.medicineQuality-this.prevMedicineQuality));
         this.populationSize = this.prevPopulationSize*(1 + this.fertility - this.mortality);
         this.illness = this.prevIllness*(1 + this.badEcology-this.prevBadEcology + (this.virusStamms-this.prevVirusStamms)/1000);
         this.financing = this.prevFinancing*(1 + (this.budget-this.prevBudget)/100 + (this.illness-this.prevIllness));
-        this.medicalEquipment = this.prevMedicalEquipment*(1 + this.financing-this.prevFinancing);
-        this.medicineQuality = this.prevMedicineQuality*(1 + (this.medicalEquipment-this.prevMedicalEquipment + this.doctorsNum-this.prevDoctorsNum)/100);
-        // TODO: add delay
-        this.doctorsNum = this.prevDoctorsNum*(1 + (this.populationSize-this.prevPopulationSize)/100);
-        this.patientsNum = this.prevPatientsNum*(1 + this.illness-this.prevIllness + (this.populationSize-this.prevPopulationSize)/100 - 2*(this.medicineQuality-this.prevMedicineQuality));
+        this.medicalEquipment = this.prevMedicalEquipment*(1 + 10*(this.financing-this.prevFinancing));
+        this.medicineQuality = this.prevMedicineQuality*(1 + (this.medicalEquipment-this.prevMedicalEquipment + this.doctorsNum-this.prevDoctorsNum)/50);
+        this.doctorsNum = this.prevDoctorsNum*(1 + this.doctorsDelay/5);
+        this.patientsNum = this.prevPatientsNum*(1 + 2*(this.illness-this.prevIllness) + (this.populationSize-this.prevPopulationSize)/100 - 3*(this.medicineQuality-this.prevMedicineQuality));
+
+        this.doctorsDelay = this.doctorsDelay + (this.populationSize-this.prevPopulationSize)/20;
+        console.log(this.doctorsDelay);
 
         this.setPrev();
     }
 
     private setPrev(){
-        this.prevBadEcology = this.badEcology;
-        this.prevVirusStamms = this.virusStamms;
-        this.prevBudget = this.budget;
-        this.prevDeathRate = this.deathRate;
-        this.prevFertilityRate = this.fertilityRate;
+        this.prevBadEcology = Math.abs(this.badEcology);
+        this.prevVirusStamms = Math.abs(this.virusStamms);
+        this.prevBudget = Math.abs(this.budget);
+        this.prevDeathRate = Math.abs(this.deathRate);
+        this.prevFertilityRate = Math.abs(this.fertilityRate);
 
-        this.prevIllness = this.illness;
-        this.prevFinancing = this.financing;
-        this.prevMedicalEquipment = this.medicalEquipment;
-        this.prevFertility = this.fertility;
-        this.prevDoctorsNum = this.doctorsNum;
-        this.prevPatientsNum = this.patientsNum;
-        this.prevMortality = this.mortality;
-        this.prevPopulationSize = this.populationSize;
-        this.prevMedicineQuality = this.medicineQuality;
+        this.prevIllness = Math.abs(this.illness);
+        this.prevFinancing = Math.abs(this.financing);
+        this.prevMedicalEquipment = Math.abs(this.medicalEquipment);
+        this.prevFertility = Math.abs(this.fertility);
+        this.prevDoctorsNum = Math.abs(this.doctorsNum);
+        this.prevPatientsNum = Math.abs(this.patientsNum);
+        this.prevMortality = Math.abs(this.mortality);
+        this.prevPopulationSize = Math.abs(this.populationSize);
+        this.prevMedicineQuality = Math.abs(this.medicineQuality);
+
+        this.doctorsDelay *= 0.8;
     }
 }
