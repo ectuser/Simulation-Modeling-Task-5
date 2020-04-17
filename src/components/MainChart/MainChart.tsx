@@ -160,7 +160,9 @@ export default class MainChart extends React.Component<IProps, IState> {
             chartData : data,
         };
 
-        window.setInterval(this.tick.bind(this), 10000);
+
+        // window.setInterval(this.tick.bind(this), 10000);
+        this.tickMethod = this.tickMethod.bind(this);
     }
 
     private tick() {
@@ -203,12 +205,18 @@ export default class MainChart extends React.Component<IProps, IState> {
 
         this.time++;
     }
+    public tickMethod(){
+        this.tick()
+    }
 
 
     public render() {
         // use full screen
         return (
+            <div>
             <LineChart data={this.state.chartData} redraw width="1000" height="700"/>
+            <button onClick={this.tickMethod}>tick</button>
+            </div>
         );
     }
 

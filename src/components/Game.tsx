@@ -25,62 +25,84 @@ export default class Game {
     public PDR: number;
     public PHP: number;
     public DR: number;
-    public DP: number;
+    // public DP: number;
     public AHR: number;
 
     constructor() {
-        this.SB = 60000000;
-        this.BHR = 0.001;
-        this.BEI = 0.01;
-        this.NVI = 0.01;
-        this.IHR = 0.1;
-        this.RIP = 0.2;
-        this.IDR = 0.001;
-        this.UAD = 0.0001;
-        this.FR = 1.07;
-        this.BTD = 0.75;
+        this.SB = 60000000000; // state budget
+        this.BHR = 0.0001; // Budget hospital rate
+        this.BEI = 0.1; // bad ecology influence
+        this.NVI = 0.1; // new viruses influence
+        this.IHR = 0.1; // Ill to health rate
+        this.RIP = 0.2; // Rate Infected to patients
+        this.IDR = 0.001; // ill death rate
+        this.UAD = 0.0001; // Unavoidable death
+        this.FR = 0.007; // Fertility Rate
+        this.BTD = 0.75; // budget to doctors
 
         this.HB = 0;
-        this.AIP = 0;
-        this.AOP = 0;
-        this.AHP = 0;
+        this.AIP = 15000000;
+        this.AOP = 20000000;
+        this.AHP = 70000000;
         this.PDR = 0.1;
         this.PHP = 0.1;
         this.AHR = 0.1;
 
-        this.HB += this.SB * this.BHR - (this.HB * this.BTD / 30000 + (1 - this.BTD) * this.HB);
-        this.ADS = this.HB * this.BTD / 30000;
-        this.AQE = (1 - this.BTD) * this.HB;
-        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 )) + 1;
+        let oldHB = this.HB;
+
+        this.HB = this.SB * this.BHR
+        oldHB = this.HB;
+
+        this.ADS = oldHB * this.BTD / 30000;
+        this.AQE = (1 - this.BTD) * oldHB;
+        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 ) + 1);
         this.EVI = this.BEI / 2 + (this.NVI * 1.1) / 2;
         this.DR = this.UAD  + this.UAD  * (1 - this.MQ);
         this.PDR = (1 - this.MQ) * this.IDR;
         this.PHP = this.IHR * this.MQ * 5 + this.IHR;
-        let nhp = this.AHP * this.FR;
-        let nip = this.AHP * this.EVI;
-        let ndp = this.AHP * this.DR;
-        this.AHP += (this.AHP * this.FR) - (this.AHP * this.EVI + this.AHP * this.DR);
-        this.AIP += this.AHP * this.EVI - (this.AIP * this.IHR + this.AIP * this.IDR + this.AIP * this.RIP);
-        this.AHP += (this.AIP * this.AHR);
-        this.AOP += this.AIP * this.RIP - (this.AOP *this.PDR + this.AOP * this.PHP);
-        this.AHP += (this.AOP * this.PHP);
-        this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
+        // coefs
+
+        let oldAHP = this.AHP;
+        let oldAIP = this.AIP;
+        let oldAOP = this.AOP;
+
+        this.AHP += (oldAHP * this.FR) + (oldAIP * this.AHR) + (oldAOP * this.PHP) - (oldAHP * this.EVI + oldAHP * this.DR);
+        this.AIP += oldAHP * this.EVI - (oldAIP * this.IHR + oldAIP * this.IDR + oldAIP * this.RIP);
+        // this.AHP += (oldAIP * this.AHR);
+        this.AOP += oldAIP * this.RIP - (oldAOP *this.PDR + oldAOP * this.PHP);
+        console.log(this.AHP + this.AIP + this.AOP, this.AHP, this.AIP, this.AOP);
+        // this.AHP += (oldAOP * this.PHP);
+        // this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
     }
 
     public tick() {
-        this.HB += this.SB * this.BHR - (this.HB * this.BTD / 30000 + (1 - this.BTD) * this.HB);
-        this.ADS = this.HB * this.BTD / 30000;
-        this.AQE = (1 - this.BTD) * this.HB;
-        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 )) + 1;
+        let oldHB = this.HB;
+
+        this.HB = this.SB * this.BHR
+        oldHB = this.HB;
+
+        this.ADS = oldHB * this.BTD / 30000;
+        this.AQE = (1 - this.BTD) * oldHB;
+        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 ) + 1);
         this.EVI = this.BEI / 2 + (this.NVI * 1.1) / 2;
         this.DR = this.UAD  + this.UAD  * (1 - this.MQ);
         this.PDR = (1 - this.MQ) * this.IDR;
         this.PHP = this.IHR * this.MQ * 5 + this.IHR;
-        this.AHP += (this.AHP * this.FR) - (this.AHP * this.EVI + this.AHP * this.DR)
-        this.AIP += this.AHP * this.EVI - (this.AIP * this.IHR + this.AIP * this.IDR + this.AIP * this.RIP)
-        this.AHP += (this.AIP * this.AHR)
-        this.AOP += this.AIP * this.RIP - (this.AOP *this.PDR + this.AOP * this.PHP)
-        this.AHP += (this.AOP * this.PHP)
-        this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
+        // coefs
+
+        let oldAHP = this.AHP;
+        let oldAIP = this.AIP;
+        let oldAOP = this.AOP;
+
+        this.AHP += (oldAHP * this.FR) + (oldAIP * this.AHR) + (oldAOP * this.PHP) - (oldAHP * this.EVI + oldAHP * this.DR);
+        this.AIP += oldAHP * this.EVI - (oldAIP * this.IHR + oldAIP * this.IDR + oldAIP * this.RIP);
+        // this.AHP += (oldAIP * this.AHR);
+        this.AOP += oldAIP * this.RIP - (oldAOP *this.PDR + oldAOP * this.PHP);
+        console.log(this.AHP + this.AIP + this.AOP, this.AHP, this.AIP, this.AOP);
+        // this.AHP += (oldAOP * this.PHP);
+        // this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
+
+
+        // this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
     }
 }
