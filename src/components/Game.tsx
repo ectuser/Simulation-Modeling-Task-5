@@ -4,108 +4,83 @@ function randomInteger(min: number, max: number) {
 }
 
 export default class Game {
-    public badEcology: number;
-    public virusStamms: number;
-    public illness: number;
-    public financing: number;
-    public budget: number;
-    public medicalEquipment: number;
-    public patientsNum: number;
-    public medicineQuality: number;
-    public mortality: number;
-    public deathRate: number;
-    public fertility: number;
-    public fertilityRate: number;
-    public populationSize: number;
-    public doctorsNum: number;
-
-    public doctorsDelay: number;
-
-    // @ts-ignore
-    private prevBadEcology: number;
-    // @ts-ignore
-    private prevVirusStamms: number;
-    // @ts-ignore
-    private prevIllness: number;
-    // @ts-ignore
-    private prevFinancing: number;
-    // @ts-ignore
-    private prevBudget: number;
-    // @ts-ignore
-    private prevMedicalEquipment: number;
-    // @ts-ignore
-    public prevPatientsNum: number;
-    // @ts-ignore
-    public prevMedicineQuality: number;
-    // @ts-ignore
-    public prevMortality: number;
-    // @ts-ignore
-    public prevDeathRate: number;
-    // @ts-ignore
-    public prevFertility: number;
-    // @ts-ignore
-    public prevFertilityRate: number;
-    // @ts-ignore
-    public prevPopulationSize: number;
-    // @ts-ignore
-    public prevDoctorsNum: number;
+    public SB: number;
+    public BHR: number;
+    public BEI: number;
+    public NVI: number;
+    public IHR: number;
+    public RIP: number;
+    public IDR: number;
+    public UAD: number;
+    public FR: number;
+    public ADS: number;
+    public HB: number;
+    public BTD: number;
+    public AQE: number;
+    public EVI: number;
+    public MQ: number;
+    public AIP: number;
+    public AOP: number;
+    public AHP: number;
+    public PDR: number;
+    public PHP: number;
+    public DR: number;
+    public DP: number;
+    public AHR: number;
 
     constructor() {
-        this.badEcology = randomInteger(15, 40)/100;
-        this.virusStamms = randomInteger(5, 30);
-        this.budget = randomInteger(80, 120);
-        this.deathRate = randomInteger(10, 15)/100;
-        this.fertilityRate = randomInteger(10, 15)/100;
+        this.SB = 60000000;
+        this.BHR = 0.001;
+        this.BEI = 0.01;
+        this.NVI = 0.01;
+        this.IHR = 0.1;
+        this.RIP = 0.2;
+        this.IDR = 0.001;
+        this.UAD = 0.0001;
+        this.FR = 1.07;
+        this.BTD = 0.75;
 
-        this.illness = randomInteger(35, 55)/100;
-        this.financing = randomInteger(10, 30)/100;
-        this.medicalEquipment = randomInteger(20, 40);
-        this.mortality = randomInteger(10, 11)/100;
-        this.fertility = randomInteger(10, 11)/100;
-        this.medicineQuality = randomInteger(10, 50)/100;
-        this.populationSize = randomInteger(70, 100);
-        this.doctorsNum = this.populationSize/randomInteger(10, 50);
-        this.patientsNum = this.populationSize/randomInteger(10, 50);
+        this.HB = 0;
+        this.AIP = 0;
+        this.AOP = 0;
+        this.AHP = 0;
+        this.PDR = 0.1;
+        this.PHP = 0.1;
+        this.AHR = 0.1;
 
-        this.setPrev();
-
-        this.doctorsDelay = 0;
+        this.HB += this.SB * this.BHR - (this.HB * this.BTD / 30000 + (1 - this.BTD) * this.HB);
+        this.ADS = this.HB * this.BTD / 30000;
+        this.AQE = (1 - this.BTD) * this.HB;
+        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 )) + 1;
+        this.EVI = this.BEI / 2 + (this.NVI * 1.1) / 2;
+        this.DR = this.UAD  + this.UAD  * (1 - this.MQ);
+        this.PDR = (1 - this.MQ) * this.IDR;
+        this.PHP = this.IHR * this.MQ * 5 + this.IHR;
+        let nhp = this.AHP * this.FR;
+        let nip = this.AHP * this.EVI;
+        let ndp = this.AHP * this.DR;
+        this.AHP += (this.AHP * this.FR) - (this.AHP * this.EVI + this.AHP * this.DR);
+        this.AIP += this.AHP * this.EVI - (this.AIP * this.IHR + this.AIP * this.IDR + this.AIP * this.RIP);
+        this.AHP += (this.AIP * this.AHR);
+        this.AOP += this.AIP * this.RIP - (this.AOP *this.PDR + this.AOP * this.PHP);
+        this.AHP += (this.AOP * this.PHP);
+        this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
     }
 
     public tick() {
-        this.fertility = this.prevFertility*(1 + this.fertilityRate-this.prevFertilityRate);
-        this.mortality = this.prevMortality*(1 + this.illness-this.prevIllness + this.deathRate-this.prevDeathRate - 2*(this.medicineQuality-this.prevMedicineQuality));
-        this.populationSize = this.prevPopulationSize*(1 + this.fertility - this.mortality);
-        this.illness = this.prevIllness*(1 + this.badEcology-this.prevBadEcology + (this.virusStamms-this.prevVirusStamms)/1000);
-        this.financing = this.prevFinancing*(1 + (this.budget-this.prevBudget)/100 + (this.illness-this.prevIllness));
-        this.medicalEquipment = this.prevMedicalEquipment*(1 + 10*(this.financing-this.prevFinancing));
-        this.medicineQuality = this.prevMedicineQuality*(1 + (this.medicalEquipment-this.prevMedicalEquipment + this.doctorsNum-this.prevDoctorsNum)/50);
-        this.doctorsNum = this.prevDoctorsNum*(1 + this.doctorsDelay/5);
-        this.patientsNum = this.prevPatientsNum*(1 + 2*(this.illness-this.prevIllness) + (this.populationSize-this.prevPopulationSize)/100 - 3*(this.medicineQuality-this.prevMedicineQuality));
-
-        this.doctorsDelay = this.doctorsDelay + (this.populationSize-this.prevPopulationSize)/20;
-        console.log(this.doctorsDelay);
-
-        this.setPrev();
-    }
-
-    private setPrev(){
-        this.prevBadEcology = Math.abs(this.badEcology);
-        this.prevVirusStamms = Math.abs(this.virusStamms);
-        this.prevBudget = Math.abs(this.budget);
-        this.prevDeathRate = Math.abs(this.deathRate);
-        this.prevFertilityRate = Math.abs(this.fertilityRate);
-
-        this.prevIllness = Math.abs(this.illness);
-        this.prevFinancing = Math.abs(this.financing);
-        this.prevMedicalEquipment = Math.abs(this.medicalEquipment);
-        this.prevFertility = Math.abs(this.fertility);
-        this.prevDoctorsNum = Math.abs(this.doctorsNum);
-        this.prevPatientsNum = Math.abs(this.patientsNum);
-        this.prevMortality = Math.abs(this.mortality);
-        this.prevPopulationSize = Math.abs(this.populationSize);
-        this.prevMedicineQuality = Math.abs(this.medicineQuality);
-
-        this.doctorsDelay *= 0.8;
+        this.HB += this.SB * this.BHR - (this.HB * this.BTD / 30000 + (1 - this.BTD) * this.HB);
+        this.ADS = this.HB * this.BTD / 30000;
+        this.AQE = (1 - this.BTD) * this.HB;
+        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 )) + 1;
+        this.EVI = this.BEI / 2 + (this.NVI * 1.1) / 2;
+        this.DR = this.UAD  + this.UAD  * (1 - this.MQ);
+        this.PDR = (1 - this.MQ) * this.IDR;
+        this.PHP = this.IHR * this.MQ * 5 + this.IHR;
+        this.AHP += (this.AHP * this.FR) - (this.AHP * this.EVI + this.AHP * this.DR)
+        this.AIP += this.AHP * this.EVI - (this.AIP * this.IHR + this.AIP * this.IDR + this.AIP * this.RIP)
+        this.AHP += (this.AIP * this.AHR)
+        this.AOP += this.AIP * this.RIP - (this.AOP *this.PDR + this.AOP * this.PHP)
+        this.AHP += (this.AOP * this.PHP)
+        this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
     }
 }
