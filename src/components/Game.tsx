@@ -28,16 +28,22 @@ export default class Game {
     // public DP: number;
     public AHR: number;
 
-    constructor() {
-        this.SB = 60000000000; // state budget
+    constructor(sb : number, bei : number, nvi : number, fr : number) {
+        this.SB = sb //60000000000; // state budget
+
         this.BHR = 0.0001; // Budget hospital rate
-        this.BEI = 0.1; // bad ecology influence
-        this.NVI = 0.1; // new viruses influence
+
+        this.BEI = bei //0.1; // bad ecology influence
+        this.NVI = nvi // 0.1; // new viruses influence
+
         this.IHR = 0.1; // Ill to health rate
+
         this.RIP = 0.2; // Rate Infected to patients
         this.IDR = 0.001; // ill death rate
         this.UAD = 0.0001; // Unavoidable death
-        this.FR = 0.007; // Fertility Rate
+
+        this.FR = fr // 0.007; // Fertility Rate
+        
         this.BTD = 0.75; // budget to doctors
 
         this.HB = 0;
@@ -55,7 +61,8 @@ export default class Game {
 
         this.ADS = oldHB * this.BTD / 30000;
         this.AQE = (1 - this.BTD) * oldHB;
-        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 ) + 1);
+        this.MQ = 2 / (1 + Math.E ** ( - this.ADS * this.AQE / 10000) ) - 1
+        // this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 ) + 1);
         this.EVI = this.BEI / 2 + (this.NVI * 1.1) / 2;
         this.DR = this.UAD  + this.UAD  * (1 - this.MQ);
         this.PDR = (1 - this.MQ) * this.IDR;
@@ -83,7 +90,8 @@ export default class Game {
 
         this.ADS = oldHB * this.BTD / 30000;
         this.AQE = (1 - this.BTD) * oldHB;
-        this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 ) + 1);
+        this.MQ = 2 / (1 + Math.E ** ( - this.ADS * this.AQE / (10000 * 10000)) ) - 1
+        // this.MQ = -(- 32000 / (this.ADS * this.AQE / 10000 ) + 1);
         this.EVI = this.BEI / 2 + (this.NVI * 1.1) / 2;
         this.DR = this.UAD  + this.UAD  * (1 - this.MQ);
         this.PDR = (1 - this.MQ) * this.IDR;
@@ -104,5 +112,14 @@ export default class Game {
 
 
         // this.DP = this.AIP * this.IDR + this.AOP * this.PDR + this.AHP * this.DR;
+    }
+
+    public reDefineVariables(sb : number, bei : number, nvi : number, fr : number){
+        this.SB = sb //60000000000; // state budget
+
+        this.BEI = bei //0.1; // bad ecology influence
+        this.NVI = nvi // 0.1; // new viruses influence
+
+        this.FR = fr // 0.007; // Fertility Rate
     }
 }
